@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRE Auto Select</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#152033;--muted:#6b7280;--accent:#0f62fe;--line:#e5e7eb;--ok:#16803c}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:5}.nav{max-width:1200px;margin:auto;padding:14px 18px;display:flex;align-items:center;gap:20px}.logo{font-weight:900;font-size:20px;letter-spacing:-.5px}.logo span{color:var(--accent)}nav{display:flex;gap:14px;flex:1}button,.btn{border:0;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:700}.primary{background:var(--accent);color:#fff}.ghost{background:#eef3ff;color:#0f62fe}.danger{background:#fee2e2;color:#991b1b}.lang{border:1px solid var(--line);background:#fff}
+main{max-width:1200px;margin:auto;padding:25px 18px}.hero{background:linear-gradient(135deg,#0f172a,#163a72);color:#fff;border-radius:22px;padding:32px;margin-bottom:20px}.hero h1{font-size:clamp(28px,5vw,48px);margin:0 0 8px}.hero p{color:#dbe7ff;max-width:750px}
+.search{background:#fff;padding:16px;border-radius:16px;border:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:20px}.search input,.search select,.form input,.form select,.form textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}.photo{height:190px;background:#dfe6f2;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:14px}.cardbody{padding:15px}.title{font-weight:850;font-size:18px}.price{font-weight:900;font-size:21px;margin:8px 0}.meta{color:var(--muted);font-size:13px;line-height:1.6}.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eaf7ee;color:var(--ok);font-size:12px;font-weight:800}.section{margin:28px 0}.section h2{margin-bottom:12px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}.form label{font-size:12px;font-weight:800;display:block;margin-bottom:5px}.notice{background:#fff7ed;border:1px solid #fed7aa;padding:12px;border-radius:10px;color:#9a3412;font-size:13px}
+footer{padding:30px 18px;text-align:center;color:var(--muted)}.hidden{display:none}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.search{grid-template-columns:1fr 1fr}.form{grid-template-columns:1fr}nav{display:none}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.search{grid-template-columns:1fr}.hero{padding:22px}}
+</style>
+</head>
+<body>
+<header><div class="nav">
+<div class="logo">TRE <span>Auto Select</span></div>
+<nav><button onclick="show('home')">Accueil</button><button onclick="show('list')">Mes annonces</button><button onclick="show('profile')">Profil vendeur</button><button onclick="show('admin')">Administration</button></nav>
+<select class="lang" id="lang" onchange="setLang(this.value)"><option value="fr">FR</option><option value="en">EN</option><option value="de">DE</option><option value="ar">AR</option></select>
+</div></header>
+<main>
+<section id="home">
+<div class="hero"><h1>TRE Auto Select</h1><p id="heroText">La marketplace dédiée aux voitures destinées aux Tunisiens résidant à l'étranger et aux acheteurs éligibles au régime FCR. Annonces vérifiées, vendeurs identifiés et suivi du véhicule.</p>
+<div class="search">
+<input id="q" placeholder="Marque, modèle..." oninput="renderCars()">
+<select id="fuel" onchange="renderCars()"><option value="">Carburant</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Hybride rechargeable (PHEV)</option><option>100% électrique</option><option>GPL</option><option>Hydrogène</option></select>
+<select id="gear" onchange="renderCars()"><option value="">Transmission</option><option>Automatique</option><option>Manuelle</option><option>CVT</option><option>DCT</option></select>
+<select id="year" onchange="renderCars()"><option value="">Année min.</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option></select>
+<select id="verified" onchange="renderCars()"><option value="">Toutes</option><option value="1">Vérifiées uniquement</option></select>
+</div></div>
+<div class="section"><h2>Véhicules disponibles</h2><div id="cars" class="grid"></div></div>
+</section>
+
+<section id="list" class="hidden">
+<div class="section"><h2>Mes annonces</h2><div class="panel">
+<div class="notice">Chaque annonce est soumise à validation. Une annonce est publiée pour 35 jours maximum. Les opérations contraires à la réglementation FCR/douanière ne sont pas autorisées sur la plateforme.</div>
+<br><button class="primary" onclick="show('new')">+ Nouvelle annonce</button>
+<div id="myListings" style="margin-top:15px"></div>
+</div></div>
+</section>
+
+<section id="new" class="hidden">
+<div class="section"><h2>Nouvelle annonce</h2><div class="panel form">
+<div><label>Marque</label><input id="brand" placeholder="Kia"></div>
+<div><label>Modèle</label><input id="model" placeholder="Sportage"></div>
+<div><label>Année</label><input id="carYear" type="number" value="2024"></div>
+<div><label>Prix</label><input id="price" type="number" placeholder="27000"></div>
+<div><label>Carburant</label><select id="carFuel"><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Hybride rechargeable (PHEV)</option><option>100% électrique</option><option>GPL</option><option>Hydrogène</option></select></div>
+<div><label>Transmission</label><select id="carGear"><option>Automatique</option><option>Manuelle</option><option>CVT</option><option>DCT</option></select></div>
+<div><label>Kilométrage</label><input id="km" type="number" placeholder="45000"></div>
+<div><label>Couleur</label><input id="color" placeholder="Blanc"></div>
+<div><label>VIN / numéro de châssis</label><input id="vin" placeholder="Requis pour validation"></div>
+<div><label>Numéro carte grise</label><input id="reg" placeholder="Requis pour validation"></div>
+<div><label>Pays actuel</label><select id="country"><option>Allemagne</option><option>France</option><option>Italie</option><option>Corée du Sud</option><option>Pays du Golfe</option><option>Autre</option></select></div>
+<div><label>Statut</label><select id="status"><option>Disponible</option><option>En transit</option><option>Formalités douanières</option><option>Arrivée en Tunisie</option><option>Livrée</option></select></div>
+<div class="full"><label>Options / description</label><textarea id="desc" rows="4" placeholder="Full option, toit panoramique, sièges chauffants..."></textarea></div>
+<div class="full"><label>Photos (jusqu'à 30)</label><input id="photos" type="file" accept="image/*" multiple></div>
+<div class="full"><button class="primary" onclick="createListing()">Soumettre pour vérification</button> <button onclick="show('list')">Annuler</button></div>
+</div></div>
+</section>
+
+<section id="profile" class="hidden"><div class="section"><h2>Profil vendeur / revendeur</h2><div class="panel form">
+<div><label>Nom / société</label><input value="TRE Auto Select Seller"></div><div><label>Téléphone</label><input placeholder="+49..."></div>
+<div><label>Email</label><input type="email" placeholder="contact@example.com"></div><div><label>Pays</label><select><option>Allemagne</option><option>France</option><option>Italie</option><option>Corée du Sud</option><option>Pays du Golfe</option></select></div>
+<div class="full"><label>Réseaux sociaux / site</label><input placeholder="Instagram, Facebook, site web..."></div>
+<div class="full"><button class="primary">Enregistrer le profil</button></div>
+</div></div></section>
+
+<section id="admin" class="hidden"><div class="section"><h2>Administration</h2><div class="panel">
+<p><b>Workflow prévu :</b> annonce reçue → contrôle documents/VIN → validation → publication → suivi → vente/livraison → archivage.</p>
+<div class="notice">La vérification automatique ne remplace pas la vérification humaine. Les données sensibles doivent être protégées et l'accès admin journalisé.</div>
+<div id="adminList" style="margin-top:15px"></div>
+</div></div></section>
+</main>
+<footer>TRE Auto Select · Marketplace sans publicité · Version MVP</footer>
+<script>
+const seed=[
+{id:1,brand:"Kia",model:"Sportage PHEV GT-Line",year:2024,price:29900,fuel:"Hybride rechargeable (PHEV)",gear:"Automatique",km:32000,color:"Blanc",country:"Allemagne",verified:true,status:"Disponible",desc:"4WD, full option, sièges chauffants, navigation"},
+{id:2,brand:"Toyota",model:"RAV4 Hybrid",year:2023,price:28500,fuel:"Hybride",gear:"Automatique",km:41000,color:"Noir",country:"France",verified:true,status:"En transit",desc:"AWD, caméra, ACC"},
+{id:3,brand:"Hyundai",model:"Tucson",year:2024,price:27200,fuel:"Hybride",gear:"DCT",km:18000,color:"Gris",country:"Italie",verified:true,status:"Disponible",desc:"N Line, caméra 360°, sièges chauffants"}
+];
+let cars=JSON.parse(localStorage.getItem("treCars")||"null")||seed;
+function save(){localStorage.setItem("treCars",JSON.stringify(cars))}
+function show(id){document.querySelectorAll("main>section").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");if(id==="list")renderMine();if(id==="admin")renderAdmin()}
+function renderCars(){let q=(document.getElementById("q").value||"").toLowerCase(),f=document.getElementById("fuel").value,g=document.getElementById("gear").value,y=document.getElementById("year").value,v=document.getElementById("verified").value;
+let a=cars.filter(c=>(!q||`${c.brand} ${c.model}`.toLowerCase().includes(q))&&(!f||c.fuel===f)&&(!g||c.gear===g)&&(!y||c.year>=+y)&&(!v||c.verified));
+document.getElementById("cars").innerHTML=a.map(card).join("")||"<div class='panel'>Aucun véhicule correspondant.</div>"}
+function card(c){return `<article class="card"><div class="photo">${c.photo?"Photo":"Aperçu véhicule"}</div><div class="cardbody"><span class="badge">${c.verified?"✓ Vérifiée":"En vérification"}</span><div class="title">${c.brand} ${c.model}</div><div class="price">${Number(c.price).toLocaleString()} €</div><div class="meta">${c.year} · ${Number(c.km).toLocaleString()} km · ${c.fuel}<br>${c.gear} · ${c.color||""} · ${c.country}<br>Statut : ${c.status}</div><p>${c.desc||""}</p></div></article>`}
+function createListing(){let c={id:Date.now(),brand:brand.value.trim(),model:model.value.trim(),year:+carYear.value,price:+price.value,fuel:carFuel.value,gear:carGear.value,km:+km.value,color:color.value,vin:vin.value,reg:reg.value,country:country.value,status:status.value,desc:desc.value,verified:false,created:new Date().toISOString()};
+if(!c.brand||!c.model||!c.vin||!c.reg){alert("Marque, modèle, VIN/châssis et carte grise sont obligatoires.");return}
+cars.unshift(c);save();alert("Annonce envoyée. Elle est en attente de vérification.");show("list")}
+function renderMine(){document.getElementById("myListings").innerHTML=cars.slice(0,10).map(c=>`<div class="panel" style="margin-top:10px"><b>${c.brand} ${c.model}</b> — ${c.price} € — ${c.verified?"Validée":"En attente"}<br><span class="meta">${c.status} · expiration prévue 35 jours après publication</span></div>`).join("")}
+function renderAdmin(){document.getElementById("adminList").innerHTML=cars.filter(c=>!c.verified).map(c=>`<div class="panel" style="margin-top:10px"><b>${c.brand} ${c.model}</b><br>VIN: ${c.vin}<br>Carte grise: ${c.reg}<br><button class="primary" onclick="verify(${c.id})">Valider</button> <button class="danger" onclick="reject(${c.id})">Refuser</button></div>`).join("")||"<p>Aucune annonce en attente.</p>"}
+function verify(id){let c=cars.find(x=>x.id===id);c.verified=true;save();renderAdmin();renderCars()}
+function reject(id){cars=cars.filter(x=>x.id!==id);save();renderAdmin();renderCars()}
+const T={fr:"La marketplace dédiée aux voitures destinées aux Tunisiens résidant à l'étranger et aux acheteurs éligibles au régime FCR. Annonces vérifiées, vendeurs identifiés et suivi du véhicule.",en:"A marketplace for vehicles intended for Tunisians abroad and eligible FCR buyers. Verified listings, identified sellers and vehicle tracking.",de:"Marktplatz für Fahrzeuge für Tunesier im Ausland und berechtigte FCR-Käufer. Geprüfte Anzeigen, verifizierte Verkäufer und Fahrzeugstatus.",ar:"منصة لربط السيارات الموجهة للتونسيين بالخارج وبالمشترين المؤهلين لنظام FCR، مع إعلانات وبائعين موثّقين وتتبع حالة السيارة."};
+function setLang(l){document.documentElement.lang=l;document.getElementById("heroText").textContent=T[l];if(l==="ar")document.body.dir="rtl";else document.body.dir="ltr"}
+renderCars();
+</script>
+</body></html>
